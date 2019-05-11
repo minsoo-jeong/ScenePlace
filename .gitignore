@@ -1,0 +1,8 @@
+logs
+ckpts
+data
+places365-master
+**/__pycache__/
+*.csv
+*.tar
+*.txt
