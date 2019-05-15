@@ -2,7 +2,8 @@ import torch
 import shutil
 import os
 import logging
-from .TlsSMTPHandler import TlsSMTPHandler
+if __name__!='__main__':
+    from .TlsSMTPHandler import TlsSMTPHandler
 import time
 
 class AverageMeter(object):
@@ -39,11 +40,12 @@ def accuracy(output, target, topk=(1,)):
         res.append(correct_k.mul_(100.0 / batch_size))
     return res
 
+
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
-    torch.save(state, filename + '_latest.pth.tar')
+    torch.save(state, filename + '-latest.pth.tar')
     if is_best:
         #torch.save(state, filename + '_best.pth.tar')
-        shutil.copyfile(filename + '_latest.pth.tar', filename + '_best.pth.tar')
+        shutil.copyfile(filename + '-latest.pth.tar', filename + '-best.pth.tar')
 
 
 
@@ -83,3 +85,18 @@ def init_logger(log_path):
     log.addHandler(smpt_handler)
 
     return log
+
+
+if __name__=='__main__':
+    import numpy as np
+
+    a=np.random.randn(20).reshape(4,5)
+    b=torch.tensor(a)
+    ans=torch.Tensor([2,3,2,4]).type(torch.LongTensor)
+    print(ans)
+    print(b[:,ans].diag().reshape(-1,1))
+    print(b)
+    print(b.topk(k=2))
+    c=torch.nn.functional.softmax(b,dim=1)
+    print(c)
+    print(c.topk(k=2))
