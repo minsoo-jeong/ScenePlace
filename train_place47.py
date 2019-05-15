@@ -16,8 +16,8 @@ import os
 import sys
 
 from utils.utils import save_checkpoint, adjust_learning_rate, init_logger
-from stage import train, validate
-from datasets import ListFromTxt
+from stage import train, validate, validate_video
+from datasets import ListFromTxt,SceneImageFolder
 
 PLACE47_TRAIN_FILE = 'data/place47_train.txt'
 PLACE47_TRAIN_ROOT = '/data/place/data_large'
@@ -25,19 +25,31 @@ PLACE47_TRAIN_ROOT = '/data/place/data_large'
 PLACE47_VALID_FILE = 'data/place47_valid.txt'
 PLACE47_VALID_ROOT = '/data/place/val_256'
 
-EPOCH = 10
-LEARNING_RATE = 0.001
+VIDEO_ROOT = '/data/korea/movie/New_world'
+SCENE_TO_CLASS_CSV = VIDEO_ROOT + '.csv'
+# MODEL_CKPT = 'ckpts/resnet50_latest.pth.tar'
+
+EPOCH = 30
+LEARNING_RATE = 0.0001
 MOMENTUM = 0.9
 WEIGHT_DECAY = 0.0001
 
-PRINT_FREQ = 30
+TRAIN_PRINT_FREQ = 600
+VALID_PRINT_FREQ = 3
+VIDEO_PRINT_FREQ = 3
+
+SAVE = 'resnet50'
 
 
 def main():
     start_epoch = 0
     best_prec1 = 0
-    log = init_logger('logs/resnet50.txt')
-    model = nets.Resnet50(47).cuda()
+    log = init_logger('logs/{}.txt'.format(SAVE))
+    model = nets.Resnet50(47)
+    for n, p in model.named_modules():
+        if isinstance(p, torch.nn.Linear):
+            torch.nn.init.xavier_normal(p.weight)
+    model = model.cuda()
     model = torch.nn.DataParallel(model)
 
     normalize = trn.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
@@ -55,7 +67,10 @@ def main():
     train_loader = DataLoader(ListFromTxt(PLACE47_TRAIN_FILE, PLACE47_TRAIN_ROOT, train_trn)
                               , batch_size=64, shuffle=True, num_workers=4, pin_memory=True)
     valid_loader = DataLoader(ListFromTxt(PLACE47_VALID_FILE, PLACE47_VALID_ROOT, valid_trn)
-                              , batch_size=64, shuffle=False, num_workers=4, pin_memory=True)
+                              , batch_size=512, shuffle=False, num_workers=4, pin_memory=True)
+    video_loader = DataLoader(SceneImageFolder(VIDEO_ROOT, SCENE_TO_CLASS_CSV, valid_trn)
+                              , batch_size=512, shuffle=False, num_workers=4, pin_memory=True)
+
 
     criterion = torch.nn.CrossEntropyLoss().cuda()
     optimizer = torch.optim.Adam(model.parameters(), LEARNING_RATE, weight_decay=WEIGHT_DECAY)
@@ -63,9 +78,11 @@ def main():
     for epoch in range(start_epoch, EPOCH):
         # adjust_learning_rate(optimizer, epoch)
         # train for one epoch
-        train(train_loader, model, criterion, optimizer, epoch, PRINT_FREQ)
+        train(train_loader, model, criterion, optimizer, epoch, TRAIN_PRINT_FREQ)
         # evaluate on validation set
-        prec1 = validate(valid_loader, model, criterion, PRINT_FREQ)
+        prec1 = validate(valid_loader, model, criterion, VALID_PRINT_FREQ)
+        # evaluate on validation video set
+        validate_video(video_loader, model, criterion, VIDEO_PRINT_FREQ)
 
         # remember best prec@1 and save checkpoint
         is_best = prec1 > best_prec1
@@ -76,10 +93,14 @@ def main():
             # 'arch': args.arch,
             'state_dict': model.state_dict(),
             'best_prec1': best_prec1,
-        }, is_best, 'ckpts/resnet50'.format(epoch))
+        }, is_best, 'ckpts/{}_ep{}'.format(SAVE,epoch))
+
 
     # validate(valid_loader, model, criterion)
 
 
 if __name__ == '__main__':
-    main()
+    a='1003'.zfill(2)
+    print(a)
+
+    #main()

@@ -40,10 +40,10 @@ def accuracy(output, target, topk=(1,)):
     return res
 
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
-    torch.save(state, filename + '_latest.pth.tar')
+    torch.save(state, filename + '-latest.pth.tar')
     if is_best:
         #torch.save(state, filename + '_best.pth.tar')
-        shutil.copyfile(filename + '_latest.pth.tar', filename + '_best.pth.tar')
+        shutil.copyfile(filename + '-latest.pth.tar', filename + '-best.pth.tar')
 
 
 

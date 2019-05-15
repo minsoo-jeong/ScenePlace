@@ -3,8 +3,8 @@ import os
 
 
 dir='/data/place/filelist'
-PLACE47_TRAIN_DATA_TXT='places47_val_data.txt'
-NEW_PLACE47_TRAIN_DATA_TXT='place47_valid.txt'
+PLACE47_TRAIN_DATA_TXT='places47_train_data.txt'
+NEW_PLACE47_TRAIN_DATA_TXT='place47_train.txt'
 print(os.listdir(dir))
 
 f=open(os.path.join(dir,PLACE47_TRAIN_DATA_TXT),'r')
