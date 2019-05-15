@@ -227,7 +227,9 @@ def validate_video_csv(val_loader, model, criterion, category, csv_file, print_f
     # switch to evaluate mode
     model.eval()
     end = time.time()
-    f = open(csv_file, 'w', newline='', encoding='utf-8')
+
+    f = open(csv_file, 'w', newline='', encoding='cp949')
+
     wrt = csv.writer(f)
     wrt.writerow(['path', 'target', 'rank', 'prob', 'score', 'top5', 'top5_prob', 'top5_score'])
 
@@ -289,8 +291,9 @@ def validate_video_csv(val_loader, model, criterion, category, csv_file, print_f
                     i, len(val_loader), batch_time=batch_time, loss=losses,
                     top1=top1, top5=top5, rank=rank_target, prob=prob_target, score=score_target))
 
-        print(" * Prec@1 {top1.avg:.3f}\tPrec@5 {top5.avg:.3f}\t"
-              " At target\tRank {rank.avg:.2f}\tProb {prob.avg:.5f}\t"
-              "Score {score.avg:.5f}"
-              .format(top1=top1, top5=top5, rank=rank_target, prob=prob_target, score=score_target))
+        summary = " * Prec@1 {top1.avg:.3f}\tPrec@5 {top5.avg:.3f}\tAt target\tRank {rank.avg:.2f}\tProb {prob.avg:.5f}\tScore {score.avg:.5f}".format(
+            top1=top1, top5=top5, rank=rank_target, prob=prob_target, score=score_target)
+        print(summary)
+        wrt.writerow([summary])
+
         return rank_target.avg, prob_target.avg, score_target.avg
