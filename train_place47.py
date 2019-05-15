@@ -17,7 +17,9 @@ import sys
 
 from utils.utils import save_checkpoint, adjust_learning_rate, init_logger
 from stage import train, validate, validate_video
+
 from datasets import ListFromTxt, SceneImageFolder
+
 
 PLACE47_TRAIN_FILE = 'data/place47_train.txt'
 PLACE47_TRAIN_ROOT = '/data/place/data_large'
@@ -38,14 +40,18 @@ TRAIN_PRINT_FREQ = 600
 VALID_PRINT_FREQ = 3
 VIDEO_PRINT_FREQ = 3
 
-SAVE = 'resnet50-rmac'
+
+SAVE = 'resnet50'
+
 
 
 def main():
     start_epoch = 0
     best_prec1 = 0
     log = init_logger('logs/{}.txt'.format(SAVE))
-    model = nets.Resnet50_RMAC(47)
+
+    model = nets.Resnet50(47)
+
     for n, p in model.named_modules():
         if isinstance(p, torch.nn.Linear):
             torch.nn.init.xavier_normal(p.weight)
@@ -94,8 +100,12 @@ def main():
             'best_prec1': best_prec1,
         }, is_best, 'ckpts/{}_ep{}'.format(SAVE, epoch))
 
+
     # validate(valid_loader, model, criterion)
 
 
 if __name__ == '__main__':
-    main()
+    a='1003'.zfill(2)
+    print(a)
+
+    #main()

@@ -227,7 +227,9 @@ def validate_video_csv(val_loader, model, criterion, category, csv_file, print_f
     # switch to evaluate mode
     model.eval()
     end = time.time()
+
     f = open(csv_file, 'w', newline='', encoding='cp949')
+
     wrt = csv.writer(f)
     wrt.writerow(['path', 'target', 'rank', 'prob', 'score', 'top5', 'top5_prob', 'top5_score'])
 
@@ -293,4 +295,5 @@ def validate_video_csv(val_loader, model, criterion, category, csv_file, print_f
             top1=top1, top5=top5, rank=rank_target, prob=prob_target, score=score_target)
         print(summary)
         wrt.writerow([summary])
+
         return rank_target.avg, prob_target.avg, score_target.avg

@@ -8,8 +8,11 @@ class Resnet50(torch.nn.Module):
         super(Resnet50, self).__init__()
         self.base = torch.nn.Sequential(*list(models.resnet50(pretrained=True).children())[:-2])
         self.pool = torch.nn.AvgPool2d(kernel_size=7, stride=1)
-        self.fc = torch.nn.Linear(2048, num_classes)
-
+        self.fc = torch.nn.Sequential(
+            torch.nn.Linear(2048, 512),
+            torch.nn.ReLU(inplace=True),
+            torch.nn.Linear(512,47)
+        )
     def forward(self, x):
         x = self.base(x)
         x = self.pool(x)

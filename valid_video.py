@@ -14,10 +14,12 @@ import os
 GENRE = 'drama'
 VIDEO = 'Miss_Hammurabi_E09'
 
+
 VIDEO_VALID_FILE = 'data/{}/{}.txt'.format(GENRE, VIDEO)
 VIDEO_ROOT = '/data/korea/{}/{}'.format(GENRE, VIDEO)
 SCENE_TO_CLASS_CSV = VIDEO_ROOT + '.csv'
-MODEL_CKPT = 'ckpts/resnet50-rmac_ep7-latest.pth.tar'
+MODEL_CKPT = 'ckpts/resnet50_ep8-latest.pth.tar'
+
 
 PRINT_FREQ = 1
 SAVE = 'validation-video-resnet50-rmac'
@@ -36,7 +38,9 @@ OUT_CSV = 'out/{}.csv'.format(VIDEO)
 def main():
     init_logger('logs/{}.txt'.format(SAVE))
 
-    model = nets.Resnet50_RMAC(47).cuda()
+
+    model = nets.Resnet50(47).cuda()
+
     model = torch.nn.DataParallel(model)
     model.load_state_dict(torch.load(MODEL_CKPT)['state_dict'])
 
